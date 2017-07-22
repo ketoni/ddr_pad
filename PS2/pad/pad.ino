@@ -8,8 +8,8 @@
 //#define DEBUG_BTN
 
 #define PIN_CLK     7
-#define PIN_CMD     6
-#define PIN_ATT     5
+#define PIN_ATT     6
+#define PIN_CMD     5
 #define PIN_DAT     4
 
 #define CLK_HOLD_US 50
@@ -36,9 +36,9 @@ Key button_map[8] = {
   {BTN_LEFT, KEY_LEFT_ARROW, "LEFT"},
   {BTN_RIGHT, KEY_RIGHT_ARROW, "RIGHT"},
   {BTN_START, KEY_RETURN, "START"},
-  {BTN_SELECT, KEY_RETURN, "SELECT"},
+  {BTN_SELECT, KEY_ESC, "SELECT"},
   {BTN_X, KEY_RETURN, "X"},
-  {BTN_O, KEY_ESC, "O"}
+  {BTN_O, KEY_RETURN, "O"}
 };
 
 
