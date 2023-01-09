@@ -65,18 +65,21 @@ uint16_t modified = 0;
 void debug(int res, uint8_t* buf) {
 #ifdef DEBUG_COM
     unsigned i, j;
-    printf("read() read %d bytes, %d us interval:\n\t", res, sleep_us);
+    printf("read() %d bytes\n", res);
     for (i = 0; i < res; i++)
-        printf("%hhx ", buf[i]);:
-    printf("\n\t");
-    for (i = 0; i < 2; i++) {
-        printf("   ");
+        printf("%hhx ", buf[i]);
+    printf("\n");
+    for (i = 0; i < res; i++) {
+        printf(" ");
         for (j = 0; j < 8; j++) {
             if (buf[i] & 1 << j) {
                 printf("1");
             } else {
                 printf("0");
             }
+        }
+        if ((i+1)%4 == 0) {
+            printf("\n");
         }
     }
     puts("\n");
@@ -142,10 +145,7 @@ int main(int argc, char **argv)
     xdo = xdo_new(NULL); 
 
     int fd, res;
-    unsigned sleep_us = 0, run = 0, cal_runs = 1000;
-    uint8_t buf[12];
-    memset(buf, 0x0, sizeof(buf));
-    
+    uint8_t buf[12] = {0};
 
     if (argc > 1)
         device = argv[1];
@@ -157,20 +157,6 @@ int main(int argc, char **argv)
         return 1;
     }
     printf("Connected to device '%s'\n", device);
-    sleep(2);
-    /*
-    puts("Calibrating ...");
-    while (run++ < cal_runs) {
-        printf("\r%0.0f%% ", ((double) run/ (double) cal_runs) * 100);
-        fflush(stdout);
-        res = read(fd, buf, 11);
-        if (res < 0) {
-            sleep_us += 100;
-        }
-        usleep(sleep_us);
-    }
-    */
-    printf("\rDone! Read interval is %d us\n", sleep_us);
 
     while (1) {
 
@@ -190,7 +176,7 @@ int main(int argc, char **argv)
                 }
             }
         }   
-        usleep(sleep_us);
+        sleep(0.01);
     }
     
     close(fd);
