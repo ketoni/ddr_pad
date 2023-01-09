@@ -26,23 +26,26 @@
 #define BTN_SELECT      0x100
 #define BTN_START       0x200
 
+#define BTN_CENTER      0x1000
+
 typedef struct {
   uint16_t value;
   char key[8];
   char str[10];
 } Key;
 
-Key button_map[10] = {
+Key button_map[11] = {
   {BTN_UP, "w", "UP"},
   {BTN_DOWN, "s", "DOWN"},
   {BTN_LEFT, "a", "LEFT"},
   {BTN_RIGHT, "d", "RIGHT"},
-  {BTN_SQUARE, "space", "SQUARE"},
-  {BTN_CROSS, "space", "CROSS"},
-  {BTN_CIRCLE, "space", "CIRLCE"},
-  {BTN_TRIANGLE, "space", "TRIANGLE"},
-  {BTN_START, "q", "START"},
-  {BTN_SELECT, "e", "SELECT"},
+  {BTN_SQUARE, "1", "SQUARE"},
+  {BTN_CROSS, "2", "CROSS"},
+  {BTN_CIRCLE, "3", "CIRLCE"},
+  {BTN_TRIANGLE, "4", "TRIANGLE"},
+  {BTN_START, "x", "START"},
+  {BTN_SELECT, "y", "SELECT"},
+  {BTN_CENTER, "z", "CENTER"},
 };
 
 
@@ -86,21 +89,17 @@ void debug(int res, uint8_t* buf) {
 #endif
 
 #ifdef DEBUG_BTN
-    uint8_t byte = 0x00;
-    byte = buf[0];      
-    if (byte & 0x01) puts("SQUARE");
-    if (byte & 0x02) puts("CROSS");
-    if (byte & 0x04) puts("CIRCLE");
-    if (byte & 0x08) puts("TRIANGLE");
-
-    byte = buf[1];
-    if (byte & 0x01) puts("SELECT");
-    if (byte & 0x02) puts("START");
-
-    if (buf[7]) puts("RIGHT");
-    if (buf[8]) puts("LEFT");
-    if (buf[9]) puts("UP");
-    if (buf[10]) puts("DOWN");
+    if (buf[4] & 128) puts("CENTER");
+    if (buf[5] & 16) puts("LEFT");
+    if (buf[5] & 32) puts("DOWN");
+    if (buf[5] & 64) puts("UP");
+    if (buf[5] & 128) puts("RIGHT");
+    if (buf[6] & 1) puts("TRIANGLE");
+    if (buf[6] & 2) puts("SQUARE");
+    if (buf[6] & 4) puts("CROSS");
+    if (buf[6] & 8) puts("CIRCLE");
+    if (buf[6] & 16) puts("SELECT");
+    if (buf[6] & 32) puts("START");
 #endif
 }
 
@@ -116,22 +115,17 @@ uint16_t read_pad(int fd) {
     } else {
         debug(res, buf);
 
-        uint8_t byte = buf[0];
-
-        if (byte & 0x01)  { pressed |= BTN_SQUARE; }
-        if (byte & 0x02) { pressed |= BTN_CROSS; }
-        if (byte & 0x04) { pressed |= BTN_CIRCLE; }
-        if (byte & 0x08) { pressed |= BTN_TRIANGLE; }
-
-        byte = buf[1];
-        if (byte & 0x01) { pressed |= BTN_SELECT; }
-        if (byte & 0x02) { pressed |= BTN_START; }
-
-        if (buf[7]) { pressed |= BTN_RIGHT; }
-        if (buf[8]) { pressed |= BTN_LEFT; }
-        if (buf[9]) { pressed |= BTN_UP; }
-        if (buf[10]) { pressed |= BTN_DOWN; }
-    
+        if (buf[4] & 128)   pressed |= BTN_CENTER;
+        if (buf[5] & 16)    pressed |= BTN_LEFT;
+        if (buf[5] & 32)    pressed |= BTN_DOWN;
+        if (buf[5] & 64)    pressed |= BTN_UP;
+        if (buf[5] & 128)   pressed |= BTN_RIGHT;
+        if (buf[6] & 1)     pressed |= BTN_TRIANGLE;
+        if (buf[6] & 2)     pressed |= BTN_SQUARE;
+        if (buf[6] & 4)     pressed |= BTN_CROSS;
+        if (buf[6] & 8)     pressed |= BTN_CIRCLE;
+        if (buf[6] & 16)    pressed |= BTN_SELECT;
+        if (buf[6] & 32)    pressed |= BTN_START;
     }
 
     return pressed;
@@ -165,7 +159,7 @@ int main(int argc, char **argv)
         modified = pressed_new ^ pressed_prev;
     
         Key pressed;
-        for (unsigned i = 0; i < 10; i++) {
+        for (unsigned i = 0; i < 11; i++) {
             pressed = button_map[i];
             if (pressed.value & modified) {
                 if (pressed.value & pressed_new) {
